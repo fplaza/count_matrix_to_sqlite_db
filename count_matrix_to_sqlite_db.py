@@ -78,6 +78,7 @@ def fill_count_matrix_table(count_matrix_db, count_matrix_txt, num_samples, batc
             sys.stdout.write("\033[F")
 
 
+    conn.commit()
     conn.close()
 
 def main():
