@@ -55,7 +55,7 @@ def read_genes_profiles(istream):
         yield([gene_id] + gene_profile)
 
 def create_count_matrix_table(count_matrix_db, samples_names):
-    req = 'CREATE TABLE COUNT_MATRIX(GENE_ID PRIMARY KEY NOT NULL,'
+    req = 'CREATE TABLE GENES_PROFILES(GENE_ID INTEGER PRIMARY KEY AUTOINCREMENT, GENE_NAME TEXT NOT NULL,'
     req += ','.join(( '"' + sample_name + '" REAL' for sample_name in samples_names)) + ');'
 
     conn = sqlite3.connect(count_matrix_db)
@@ -64,7 +64,7 @@ def create_count_matrix_table(count_matrix_db, samples_names):
     conn.close()
 
 def fill_count_matrix_table(count_matrix_db, count_matrix_txt, num_samples, batch_size=1000):
-    req = 'INSERT INTO COUNT_MATRIX VALUES ('
+    req = 'INSERT INTO GENES_PROFILES VALUES (NULL,'
     req += ','.join('?'*(num_samples+1))
     req += ');'
 
