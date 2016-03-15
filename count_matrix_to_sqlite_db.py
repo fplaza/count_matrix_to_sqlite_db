@@ -82,10 +82,8 @@ def fill_tables(count_matrix_txt, num_samples,output_db, batch_size=1000):
 
     with open(count_matrix_txt) as istream:
         for i, genes_profiles in enumerate(batch(read_genes_profiles(istream),batch_size),start=1):
-            genes_names=izip(item[0] for item in genes_profiles)
+            genes_names, genes_profiles = izip(*(((item[0],),item[1:]) for item in genes_profiles))
             c.executemany(genes_tbl_req, genes_names)
-
-            genes_profiles=izip(item[1:] for item in genes_profiles)
             c.executemany(genes_profiles_tbl_req, genes_profiles)
 
             sys.stdout.write("\033[F")
