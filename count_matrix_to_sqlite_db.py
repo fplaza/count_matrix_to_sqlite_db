@@ -59,47 +59,43 @@ def read_genes_profiles(istream):
         yield ([gene_name] + gene_profile)
 
 def create_tables(samples_names, output_db):
-    genes_tbl_req = 'CREATE TABLE GENES(GENE_ID INTEGER PRIMARY KEY AUTOINCREMENT, GENE_NAME TEXT NOT NULL);'
+    genes_tbl_req = (
+            'CREATE TABLE genes'
+            '(gene_id INTEGER PRIMARY KEY AUTOINCREMENT, gene_name TEXT NOT NULL);')
 
-    genes_profiles_tbl_req = 'CREATE TABLE GENES_PROFILES(GENE_ID INTEGER PRIMARY KEY AUTOINCREMENT,' 
+    genes_profiles_tbl_req = (
+            'CREATE TABLE genes_profiles'
+            '(gene_id INTEGER PRIMARY KEY AUTOINCREMENT,' )
     genes_profiles_tbl_req += ','.join(( '"' + sample_name + '" REAL' for sample_name in samples_names)) + ');'
 
-    conn = sqlite3.connect(output_db)
-    c = conn.cursor()
-    c.execute(genes_tbl_req)
-    c.execute(genes_profiles_tbl_req)
-    conn.close()
+    with sqlite3.connect(output_db) as conn:
+        conn.execute(genes_tbl_req)
+        conn.execute(genes_profiles_tbl_req)
 
 def fill_tables(count_matrix_txt, num_samples,output_db, batch_size=1000):
-    genes_tbl_req = 'INSERT INTO GENES VALUES(NULL,?)'
+    genes_tbl_req = (
+            'INSERT INTO genes '
+            'VALUES(NULL,?)')
 
-    genes_profiles_tbl_req = 'INSERT INTO GENES_PROFILES VALUES(NULL,'
-    genes_profiles_tbl_req += ','.join('?'*num_samples)
-    genes_profiles_tbl_req += ');'
+    genes_profiles_tbl_req = 'INSERT INTO genes_profiles VALUES(NULL,'
+    genes_profiles_tbl_req += ','.join('?'*num_samples) + ');'
 
-    conn = sqlite3.connect(output_db)
-    c = conn.cursor()
-
-    with open(count_matrix_txt) as istream:
+    with open(count_matrix_txt) as istream, sqlite3.connect(output_db) as conn:
         for i, genes_profiles in enumerate(batch(read_genes_profiles(istream),batch_size),start=1):
             genes_names, genes_profiles = izip(*(((item[0],),item[1:]) for item in genes_profiles))
-            c.executemany(genes_tbl_req, genes_names)
-            c.executemany(genes_profiles_tbl_req, genes_profiles)
+            conn.executemany(genes_tbl_req, genes_names)
+            conn.executemany(genes_profiles_tbl_req, genes_profiles)
 
             sys.stdout.write("\033[F")
             print("{} genes profiles processed".format(i*batch_size))
 
-
-    conn.commit()
-    conn.close()
-
 def create_genes_names_index(output_db):
-    req = "CREATE UNIQUE INDEX GENES_NAMES_INDEX ON GENES(gene_name);"
+    req =(
+            'CREATE UNIQUE INDEX genes_names_index'
+            'ON genes(gene_name);')
 
-    conn = sqlite3.connect(output_db)
-    c = conn.cursor()
-    c.execute(req)
-    conn.close()
+    with sqlite3.connect(output_db) as conn:
+        conn.execute(req)
 
 def main():
     parameters = get_parameters()
