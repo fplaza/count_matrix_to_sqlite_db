@@ -43,7 +43,7 @@ def read_samples_names(count_matrix_txt):
         samples_names = header.split()
 
         if not header.startswith('\t'):
-            samples_names = header_items[1:]
+            samples_names = samples_names[1:]
 
     print('Count matrix file has {} samples\n'.format(len(samples_names)))
 
