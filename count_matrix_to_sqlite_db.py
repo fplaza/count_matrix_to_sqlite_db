@@ -91,7 +91,7 @@ def fill_tables(count_matrix_txt, num_samples,output_db, batch_size=1000):
 
 def create_genes_names_index(output_db):
     req =(
-            'CREATE UNIQUE INDEX genes_names_index'
+            'CREATE UNIQUE INDEX genes_names_index '
             'ON genes(gene_name);')
 
     with sqlite3.connect(output_db) as conn:
