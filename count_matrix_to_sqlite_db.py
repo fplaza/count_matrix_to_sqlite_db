@@ -4,6 +4,7 @@
 """Create a SQLite database from a ASCII count matrix."""
 
 from __future__ import print_function
+from __future__ import unicode_literals
 import argparse
 import sqlite3 
 from itertools import islice, izip, chain
