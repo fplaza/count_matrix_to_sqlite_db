@@ -8,6 +8,7 @@ import argparse
 import sqlite3 
 from itertools import islice, izip, chain
 import sys
+import os
 
 __author__ = "Florian Plaza Oñate"
 __copyright__ = "Copyright 2015, Enterome"
@@ -119,6 +120,9 @@ def create_genes_names_index(output_db):
 
 def main():
     parameters = get_parameters()
+    if os.path.isfile(parameters.output_db):
+        raise sqlite3.OperationalError('{} exists'.format(parameters.output_db))
+
     samples, samples_chunks = get_samples(parameters.count_matrix_txt, parameters.samples_chunk_size)
     print('Count matrix file has {} samples\n'.format(len(samples)))
 
