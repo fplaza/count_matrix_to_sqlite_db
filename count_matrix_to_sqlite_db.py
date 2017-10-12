@@ -130,9 +130,9 @@ def main():
     create_tables(samples, samples_chunks, parameters.output_db)
     fill_tables(parameters.count_matrix_txt, samples_chunks, parameters.output_db)
 
-    #if (parameters.index_genes_names):
-        #print("Creating a unique index on genes names")
-        #create_genes_names_index(parameters.output_db)
+    if (parameters.index_genes_names):
+        print("Creating a unique index on genes names")
+        create_genes_names_index(parameters.output_db)
 
 if __name__ == '__main__':
     main()
