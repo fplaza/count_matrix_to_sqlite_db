@@ -40,6 +40,9 @@ get_genes_profiles=function(con, genes)
   # Get the list of tables that store the genes profiles
   genes_profiles_tables=get_genes_profiles_tables()
   
+  # Make sure that there is no duplicated genes
+  genes=unique(genes)
+  
   # Select appropriate function whether genes were passed as names or as ids
   if (typeof(genes) == "character")
   {
