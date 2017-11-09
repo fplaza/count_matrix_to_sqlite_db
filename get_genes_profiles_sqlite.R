@@ -58,6 +58,13 @@ get_genes_profiles=function(con, genes)
   for (genes_profiles_table in genes_profiles_tables)
   {
     res=get_genes_profiles_by_(genes_profiles_table)
+    
+    # No genes found. Stop
+    if (nrow(res) == 0)
+    {
+      return(NULL)
+    }
+    
     # Performs the concatenation
     final_res=cbind(final_res, as.matrix(res[,-(1:2)]))
   }
