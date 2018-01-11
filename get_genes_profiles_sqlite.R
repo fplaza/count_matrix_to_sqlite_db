@@ -52,6 +52,10 @@ get_genes_profiles=function(con, genes)
   {
     get_genes_profiles_by_=get_genes_profiles_by_id
   }
+  else
+  {
+    stop("genes should be integers or strings")
+  }
   
   # Retrieve the genes profiles  in each table
   final_res=matrix(nrow=length(genes), ncol=0)
