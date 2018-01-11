@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""Create a SQLite database from a ASCII count matrix."""
+"""Create a SQLite database from an ASCII gene count matrix"""
 
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -97,20 +97,28 @@ def fill_tables(count_matrix_txt, samples_chunks, output_db, batch_size=1000):
         genes_profiles_tbl_reqs.append(genes_profiles_tbl_req)
 
     with open(count_matrix_txt) as istream, sqlite3.connect(output_db) as conn:
-        num_genes_processed=0
+        istream.seek(0, 2)
+        end_pos = istream.tell()
+        istream.seek(0, 0)
+
+        num_genes_indexed=0
         for genes_profiles in batch(read_genes_profiles(istream),batch_size):
             genes_names, genes_profiles = izip(*(((item[0],),item[1:]) for item in genes_profiles))
             conn.executemany(genes_tbl_req, genes_names)
 
             for chunk_id, genes_profiles_tbl_req in enumerate(genes_profiles_tbl_reqs):
                 samples_chunk_beg,samples_chunk_end = samples_chunks[chunk_id]
-                genes_profiles_chunk=(gene_profile[samples_chunk_beg:samples_chunk_end] for gene_profile in genes_profiles)
+                genes_profiles_chunk = (gene_profile[samples_chunk_beg:samples_chunk_end] for gene_profile in genes_profiles)
                 conn.executemany(genes_profiles_tbl_req, genes_profiles_chunk)
 
-            num_genes_processed+= len(genes_profiles)
+            num_genes_indexed+= len(genes_profiles)
+            curr_pos = istream.tell()
 
-            sys.stdout.write("\033[F")
-            print("{} genes profiles processed".format(num_genes_processed))
+            perc_progress = int(round((100.0*curr_pos/end_pos)))
+            print("\033[FProgress: {}%".format(perc_progress))
+
+        print("\033[FProgress: 100%".format(perc_progress))
+        print("{} genes indexed".format(num_genes_indexed))
 
 def create_genes_names_index(output_db):
     req =('CREATE UNIQUE INDEX genes_names_index '
@@ -131,8 +139,9 @@ def main():
     fill_tables(parameters.count_matrix_txt, samples_chunks, parameters.output_db)
 
     if (parameters.index_genes_names):
-        print("Creating a unique index on genes names")
+        print("Creating a unique index on genes names...")
         create_genes_names_index(parameters.output_db)
+        print("Done.")
 
 if __name__ == '__main__':
     main()
